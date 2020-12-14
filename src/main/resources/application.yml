@@ -4,18 +4,53 @@ server:
 spring:
   application:
     name: authorization-server
+  main:
+    allow-bean-definition-overriding: true
   datasource:
-    url: jdbc:mysql://localhost:3306/spring_cloud?characterEncoding=UTF-8&useSSL=false
+    type: com.alibaba.druid.pool.DruidDataSource
+    driverClassName: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://127.0.0.1:3306/picasso_authentication?useUnicode=true&characterEncoding=utf8&serverTimezone=UTC
     username: root
     password: root
-    hikari:
-      connection-timeout: 30000
-      idle-timeout: 600000
-      max-lifetime: 1800000
-      maximum-pool-size: 9
+    druid:
+      initial-size: 5
+      max-active: 100
+      min-idle: 1
+      max-wait: 60000
+      pool-prepared-statements: true
+      max-pool-prepared-statement-per-connection-size: 20
+      validation-query: select 1 from dual
+      validation-query-timeout: 60000
+      test-while-idle: true
+      test-on-borrow: false
+      test-on-return: false
+      time-between-eviction-runs-millis: 60000
+      min-evictable-idle-time-millis: 30000
+      web-stat-filter:
+        enabled: true
+        url-pattern: /*
+        exclusions: "*.js,*.gif,*.jpg,*.png,*.css,*.ico,/druid/*"
+      stat-view-servlet:
+        enabled: true
+        url-pattern: /druid/*
+        reset-enable: false
+        login-username: hairou
+        login-password: hairou
+        allow: 172.20.29.235
+      filter:
+        stat:
+          db-type: mysql
+          log-slow-sql: true
+          slow-sql-millis: 5000
+        wall:
+          enabled: false
+          db-type: mysql
+          config:
+            delete-allow: false
+            drop-table-allow: false
   redis:
     database: 2
-    host: localhost
+    host: 127.0.0.1
     port: 6379
     password:
     jedis:
@@ -25,10 +60,26 @@ spring:
         min-idle: 0
     timeout: 100ms
 
+logging:
+  level:
+    root: info
+    org:
+      springframework:
+        web: info
+
+
 management:
   endpoint:
     health:
       enabled: true
+
+eureka:
+  instance:
+    instance-id: ${spring.application.name}:${spring.cloud.client.ip-address}:${spring.application.instance_id:${server.port}}
+    prefer-ip-address: true
+  client:
+    service-url:
+      defaultZone: http://127.0.0.1:7001/eureka/
 
 
 
